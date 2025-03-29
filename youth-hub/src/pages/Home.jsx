@@ -102,7 +102,7 @@ function Home() {
           createdBy={post.createdBy}
           timestamp={post.createdAt?.toDate().toLocaleString()}
         />
-        `{post.createdBy?.uid === user?.uid && (
+        {post.createdBy?.uid === user?.uid && (
           <button
             onClick={() => handleDelete(post.id)}
             style={{
@@ -120,7 +120,7 @@ function Home() {
           >
             🗑️ Delete
           </button>
-        )}`
+        )}
       </div>
     ))}
     </div>
