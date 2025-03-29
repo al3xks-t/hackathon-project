@@ -1,9 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { app } from '../firebase/firebaseConfig';
 import { db, storage } from '../firebase/firebaseConfig';
-import { collection, addDoc, Timestamp } from 'firebase/firestore';
+import { collection, addDoc, Timestamp, deleteDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid'; // for unique file names
+import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
+
 
 function CreatePost() {
   const [title, setTitle] = useState('');
@@ -11,13 +14,23 @@ function CreatePost() {
   const [cause, setCause] = useState('');
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState(null);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     setImage(file);
     setPreview(URL.createObjectURL(file));
   };
-
+  
+  useEffect(() => {
+    if (!user) {
+      alert("You must be logged in to create content.");
+      navigate('/');
+    }
+  }, [user]);
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
   
@@ -30,7 +43,7 @@ function CreatePost() {
         const uploadResult = await uploadBytes(imageRef, image);
         imageUrl = await getDownloadURL(uploadResult.ref);
       }
-  
+      
       // save post to firestore
       await addDoc(collection(db, 'posts'), {
         title,
@@ -38,6 +51,11 @@ function CreatePost() {
         cause,
         imageUrl,
         createdAt: Timestamp.now(),
+        createdBy: {
+          uid: user?.uid || 'anon',
+          displayName: user?.displayName || 'Anonymous',
+          email: user?.email || 'no-email',
+        }
       });
   
       alert('Post submitted!');
@@ -51,9 +69,6 @@ function CreatePost() {
       alert("Something went wrong. Try again!");
     }
   };
-  
-  
-  
 
   return (
     <div style={{ maxWidth: '500px', margin: 'auto' }}>

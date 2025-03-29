@@ -1,5 +1,5 @@
 
-function PostCard({ title, cause, description, imageUrl, timestamp }) {
+function PostCard({ title, cause, description, imageUrl, timestamp, createdBy }) {
 
     return (
       <div style={styles.card}>
@@ -9,6 +9,11 @@ function PostCard({ title, cause, description, imageUrl, timestamp }) {
           <p><strong>Cause:</strong> {cause}</p>
           <p>{description}</p>
           <p style={styles.timestamp}>{timestamp || "Just now"}</p>
+          {createdBy?.displayName && (
+              <p style={{ fontSize: '0.85rem', color: '#666' }}>
+                👤 Created by: {createdBy.displayName}
+              </p>
+            )}
         </div>
       </div>
     );
